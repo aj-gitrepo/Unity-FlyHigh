@@ -5,6 +5,7 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     [SerializeField] float mainThrust = 1000;
+    [SerializeField] float rotationThrust = 100f;
     Rigidbody rb;
 
     // Start is called before the first frame update
@@ -34,13 +35,24 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.A))
         {
-            Debug.Log("Rotation Left");
+            ApplyRotation(rotationThrust); 
         }
-        else if (Input.GetKey(KeyCode.D))
+    else if (Input.GetKey(KeyCode.D))
         {
-            Debug.Log("Rotation Right");
+            ApplyRotation(-rotationThrust); //-ve direction
         }
     }
+
+   void ApplyRotation(float rotationThisFrame)
+  {
+    transform.Rotate(Vector3.forward * rotationThisFrame * Time.deltaTime); //shorthand for (0,0,1)
+  }
 }
 
 // changing mass of Rocket in RigidBody to 0.2 before adding main thrust then changing to 1
+// set rotationThrust to 100
+
+// select the line of code to create a method and hit Ctrl + .
+// to rename - select -> F2
+
+// to apply changes to the prefab obj select the obj in the inspctor pane select overrides -> Apply all
