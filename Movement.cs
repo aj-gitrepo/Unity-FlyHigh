@@ -45,7 +45,13 @@ public class Movement : MonoBehaviour
 
    void ApplyRotation(float rotationThisFrame)
   {
+    //freezing rotation so we can manually rotate (incase if hit by an obj freezing the natural physics roation on collision)
+    rb.freezeRotation = true; 
     transform.Rotate(Vector3.forward * rotationThisFrame * Time.deltaTime); //shorthand for (0,0,1)
+    rb.freezeRotation = false; //unfreeze after manual rotation so the physics system can take over
+
+    // applying the constrains again
+    rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
   }
 }
 
@@ -56,3 +62,10 @@ public class Movement : MonoBehaviour
 // to rename - select -> F2
 
 // to apply changes to the prefab obj select the obj in the inspctor pane select overrides -> Apply all
+
+// Under Rigid Body -> Constrains 
+// - freezePosition check z //such that it does not go beyond 
+// - freezeRotation check x and y //roation only along z
+// - drag - 0.25 
+
+// change gravity - project Settings -> Physics -> set y as -4 (lesser gravity than earth)
