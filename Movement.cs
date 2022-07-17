@@ -7,11 +7,14 @@ public class Movement : MonoBehaviour
     [SerializeField] float mainThrust = 1000;
     [SerializeField] float rotationThrust = 100f;
     Rigidbody rb;
+    AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
+        // audioSource.enabled = false;
     }
 
     // Update is called once per frame
@@ -26,8 +29,16 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
+            if(!audioSource.isPlaying) 
+            {
+                audioSource.Play();
+            }
             rb.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime); 
             // Vector3 - shorthand for(0, 1, 0) - (x, y, z) //relative to the inclination(axis) of the obj //Vector2 for 2d
+        } 
+        else 
+        {
+            audioSource.Stop();
         }
     }
 
@@ -37,7 +48,7 @@ public class Movement : MonoBehaviour
         {
             ApplyRotation(rotationThrust); 
         }
-    else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D))
         {
             ApplyRotation(-rotationThrust); //-ve direction
         }
