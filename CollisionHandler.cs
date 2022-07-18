@@ -5,8 +5,23 @@ using UnityEngine.SceneManagement;
 public class CollisionHandler : MonoBehaviour
 {
     [SerializeField] float levelLoadDelay = 2f;
+    [SerializeField] AudioClip crash;
+    [SerializeField] AudioClip success;
+    [SerializeField] ParticleSystem successParticles; //drag from the positioned obj not from prefab
+    [SerializeField] ParticleSystem crashParticles;
+
+    AudioSource audioSource;
+
+    bool isTransitioning = false;
+
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>(); //caching
+    }
+
     void OnCollisionEnter(Collision other) 
     {
+        if(isTransitioning){ return; }
         switch (other.gameObject.tag) 
         {
             case "Friendly":
@@ -14,14 +29,15 @@ public class CollisionHandler : MonoBehaviour
                 break;
             case "Finish":
                 Debug.Log("Reached Finish Pad! Completed level");
+                
                 StartSuccessSequence();
                 break;
             case "Fuel":
                 Debug.Log("Fuel Obtained");
                 break;
             default:
-
                 Debug.Log("Sorry, you got busted!");
+                
                 StartCrashSequence(); 
                 break;
         }
@@ -29,16 +45,20 @@ public class CollisionHandler : MonoBehaviour
 
     void StartSuccessSequence()
     {
-        // todo add SFX upon crash
-        // todo add particle effect upon crash
+        isTransitioning = true;
+        audioSource.Stop(); //to stop the thrusting sound (all other sounds)
+        audioSource.PlayOneShot(success);
+        successParticles.Play();
         GetComponent<Movement>().enabled = false;
         Invoke("LoadNextLevel", levelLoadDelay);
     }
 
     void StartCrashSequence()
     {
-        // todo add SFX upon crash
-        // todo add particle effect upon crash
+        isTransitioning = true;
+        audioSource.Stop();
+        audioSource.PlayOneShot(crash);
+        crashParticles.Play();
         GetComponent<Movement>().enabled = false; //to cease control from user
         Invoke("ReloadLevel", levelLoadDelay); //(function name, secs) //invoke function after 1 sec
     }
@@ -59,5 +79,6 @@ public class CollisionHandler : MonoBehaviour
         SceneManager.LoadScene(currentSceneIndex); 
         //Scene in index 0, can also use namespace or index number
     }
-
 }
+
+// isTransitioning is reset to false when the next level is loaded or when the level is reset

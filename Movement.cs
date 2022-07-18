@@ -4,8 +4,16 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+    // PARAMETERS - for tuning, typically set in the editor
+    // CACHE - e.g. references for Readability o speed
+    // STATE - private instance (member) variables
+    
     [SerializeField] float mainThrust = 1000;
     [SerializeField] float rotationThrust = 100f;
+    [SerializeField] AudioClip mainEngine; //set audio file in Unity
+    [SerializeField] ParticleSystem mainBooster;
+    [SerializeField] ParticleSystem leftBooster;
+    [SerializeField] ParticleSystem rightBooster;
     Rigidbody rb;
     AudioSource audioSource;
 
@@ -25,34 +33,77 @@ public class Movement : MonoBehaviour
 
     void ProcessThrust()
     {
+        
         if (Input.GetKey(KeyCode.Space))
         {
-            if(!audioSource.isPlaying) 
-            {
-                audioSource.Play();
-            }
-            rb.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime); 
-            // Vector3 - shorthand for(0, 1, 0) - (x, y, z) //relative to the inclination(axis) of the obj //Vector2 for 2d
-        } 
-        else 
+            StartThrusting();
+        }
+        else
         {
-            audioSource.Stop();
+            StopThrusting();
         }
     }
-
-    void ProcessRotation()
+  void ProcessRotation()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            ApplyRotation(rotationThrust); 
+            RotateLeft();
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            ApplyRotation(-rotationThrust); //-ve direction
+            RotateRight();
         }
-    }
+        else
+        {
+            StopRotating();
+        }
+  }
 
-   void ApplyRotation(float rotationThisFrame)
+  void StartThrusting()
+  {
+    if (!audioSource.isPlaying)
+    {
+      audioSource.PlayOneShot(mainEngine);
+    }
+    rb.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime);
+    // Vector3 - shorthand for(0, 1, 0) - (x, y, z) //relative to the inclination(axis) of the obj //Vector2 for 2d
+    if (!mainBooster.isPlaying)
+    {
+      mainBooster.Play();
+    }
+  }
+
+  void StopThrusting()
+  {
+    audioSource.Stop();
+    mainBooster.Stop();
+  }
+
+  void RotateLeft()
+  {
+    if (!rightBooster.isPlaying)
+    {
+      rightBooster.Play();
+    }
+    ApplyRotation(rotationThrust);
+  }
+
+  void RotateRight()
+  {
+    if (!leftBooster.isPlaying)
+    {
+      leftBooster.Play();
+    }
+    ApplyRotation(-rotationThrust); //-ve direction
+  }
+
+  void StopRotating()
+  {
+    rightBooster.Stop();
+    leftBooster.Stop();
+  }
+
+  void ApplyRotation(float rotationThisFrame)
   {
     //freezing rotation so we can manually rotate (incase if hit by an obj freezing the natural physics roation on collision)
     rb.freezeRotation = true; 
